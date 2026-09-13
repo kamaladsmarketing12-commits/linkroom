@@ -1,0 +1,24 @@
+{
+  "name": "prettylink-clone",
+  "version": "1.0.0",
+  "description": "Self-hosted branded link management, redirects, and click analytics",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/db.js --migrate"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "ua-parser-js": "^1.0.39"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
