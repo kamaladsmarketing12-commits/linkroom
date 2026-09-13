@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linkroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="login-screen" class="screen">
+  <form id="login-form" class="login-card">
+    <div class="wordmark">Linkroom</div>
+    <p class="login-sub">Sign in to manage your links.</p>
+    <label>Email
+      <input type="email" id="login-email" required autocomplete="username">
+    </label>
+    <label>Password
+      <input type="password" id="login-password" required autocomplete="current-password">
+    </label>
+    <button type="submit">Sign in</button>
+    <p id="login-error" class="error-text"></p>
+  </form>
+</div>
+
+<div id="app-screen" class="screen" hidden>
+  <header class="topbar">
+    <div class="wordmark">Linkroom</div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="links">Links</button>
+      <button class="tab-btn" data-tab="overview">Overview</button>
+    </nav>
+    <div class="topbar-right">
+      <span id="user-email"></span>
+      <button id="logout-btn" class="ghost-btn">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LINKS TAB -->
+    <section id="tab-links" class="tab-panel active">
+      <div class="panel-header">
+        <h1>Links</h1>
+        <button id="new-link-btn" class="primary-btn">New link</button>
+      </div>
+      <table class="links-table">
+        <thead>
+          <tr>
+            <th>Slug</th><th>Target</th><th>Type</th><th>Clicks</th><th>Unique</th>
+            <th>Conversions</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="links-tbody"></tbody>
+      </table>
+      <p id="links-empty" class="empty-state" hidden>No links yet — create your first one.</p>
+    </section>
+
+    <!-- OVERVIEW TAB -->
+    <section id="tab-overview" class="tab-panel">
+      <div class="panel-header">
+        <h1>Overview</h1>
+        <select id="overview-range">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </div>
+      <div class="stat-row" id="overview-stats"></div>
+      <div class="chart-card">
+        <h3>Clicks over time</h3>
+        <canvas id="overview-chart" height="90"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Top links</h3>
+        <div id="overview-top-links"></div>
+      </div>
+    </section>
+
+    <!-- LINK DETAIL / STATS -->
+    <section id="tab-detail" class="tab-panel">
+      <button id="back-to-links" class="ghost-btn">&larr; Back to links</button>
+      <div class="panel-header">
+        <h1 id="detail-title">Link stats</h1>
+        <select id="detail-range">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <button id="export-csv-btn" class="ghost-btn">Export CSV</button>
+      </div>
+      <div class="stat-row" id="detail-stats"></div>
+      <div class="chart-card">
+        <h3>Clicks over time</h3>
+        <canvas id="detail-chart" height="90"></canvas>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Top referrers</h3>
+          <div id="detail-referrers"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Device breakdown</h3>
+          <canvas id="detail-device-chart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Top campaigns (UTM)</h3>
+          <div id="detail-campaigns"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Top locations</h3>
+          <div id="detail-locations"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Tracking pixel</h3>
+        <p class="muted">Paste this on a "thank you" or confirmation page to log a conversion for this link.</p>
+        <code id="pixel-snippet" class="snippet"></code>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- LINK EDITOR MODAL -->
+<div id="link-modal" class="modal-backdrop" hidden>
+  <form id="link-form" class="modal-card">
+    <h2 id="modal-title">New link</h2>
+    <input type="hidden" id="link-id">
+
+    <label>Slug
+      <div class="slug-row">
+        <span id="slug-prefix" class="slug-prefix"></span>
+        <input type="text" id="link-slug" placeholder="promo1" required pattern="[a-zA-Z0-9_-]+">
+      </div>
+    </label>
+
+    <label>Target URL
+      <input type="url" id="link-target" placeholder="https://example.com/landing-page" required>
+    </label>
+
+    <label>Title <span class="optional">(optional)</span>
+      <input type="text" id="link-title" placeholder="Spring promo">
+    </label>
+
+    <label>Redirect type
+      <select id="link-redirect-type">
+        <option value="301">301 — permanent (best for SEO)</option>
+        <option value="302">302 — temporary</option>
+        <option value="meta">Meta refresh — interstitial page</option>
+        <option value="js">JavaScript — interstitial page</option>
+      </select>
+    </label>
+    <p id="cloak-warning" class="warn-text" hidden>
+      Meta/JS redirects keep the short URL visible while the page loads, which some ad
+      networks and affiliate programs treat as "cloaking." Check your program's terms
+      before using this for paid traffic.
+    </p>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="link-pass-utm" checked>
+      Forward UTM &amp; query parameters to the target URL
+    </label>
+
+    <label>Notes <span class="optional">(optional)</span>
+      <textarea id="link-notes" rows="2" placeholder="Where this link is used…"></textarea>
+    </label>
+
+    <p id="modal-error" class="error-text"></p>
+    <div class="modal-actions">
+      <button type="button" id="modal-cancel" class="ghost-btn">Cancel</button>
+      <button type="submit" class="primary-btn">Save link</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
