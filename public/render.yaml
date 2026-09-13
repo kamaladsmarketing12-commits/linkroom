@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: linkroom
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/db.js --migrate && node src/server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DB_PATH
+        value: /var/data/prettylink.db
+      - key: UNIQUE_WINDOW_HOURS
+        value: 24
+      - key: ALLOWED_TARGET_DOMAINS
+        value: ""
+    disk:
+      name: linkroom-data
+      mountPath: /var/data
+      sizeGB: 1
