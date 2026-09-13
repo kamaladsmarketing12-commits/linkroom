@@ -15,12 +15,8 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: DB_PATH
-        value: /var/data/prettylink.db
+        value: ./data/prettylink.db
       - key: UNIQUE_WINDOW_HOURS
         value: 24
       - key: ALLOWED_TARGET_DOMAINS
         value: ""
-    disk:
-      name: linkroom-data
-      mountPath: /var/data
-      sizeGB: 1
